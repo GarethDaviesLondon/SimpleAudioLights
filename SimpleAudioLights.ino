@@ -1,23 +1,25 @@
 #include "MorseSender.h"
+#define VERSION "V 1.2"
 
 #define SAMPLES 128
-#define OUTPUTPIN 10
-#define BASEPIN 11
+
 #define TREBPIN 8
 #define REVERSEPIN 9
+#define OUTPUTPIN 10
+#define BASEPIN 11
 
 #define ALPHA 8 //This is the filter used in the Low Pass Filter
+
 #define SIGALPHAAGC 64   //Used in the AGC Calculation
-#define BASEALPHAAGC 64   //Used in the AGC Calculation
-#define TREBALPHAAGC 64   //Used in the AGC Calculation
+
 #define SIGRATCHETGAP 10 //This is the peak detect reset, when it peaks it moves the average up towards the peak, from which it then decays...
 #define BASERATCHETGAP 10 //This is the peak detect reset, when it peaks it moves the average up towards the peak, from which it then decays...
 #define TREBRATCHETGAP 20 //This is the peak detect reset, when it peaks it moves the average up towards the peak, from which it then decays...
+
 #define SIGLATCHLENGTH 1 //Once triggered this is the on dwell time
 #define HPLATCHLENGTH 2 //Once triggered this is the on dwell time
 #define LPLATCHLENGTH 10 //Once triggered this is the on dwell time
 
-MorseSender Morse(LED_BUILTIN);
 
   int smax=0;
   int lpmax=0;
@@ -41,10 +43,6 @@ MorseSender Morse(LED_BUILTIN);
 
   
 void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(57600);
-  Serial.flush();
-  Serial.println("hello");
   pinMode(A0,INPUT);
   pinMode(OUTPUTPIN,OUTPUT);
   pinMode(BASEPIN,OUTPUT);
@@ -54,22 +52,23 @@ void setup() {
   pinMode(2,INPUT_PULLUP);
   alpha=1.0/ALPHA;
   sigAlphaAGC=1.0/SIGALPHAAGC;
+  
+  if (digitalRead(2)==LOW)
+  { 
+   MorseSender Morse(LED_BUILTIN);
    Morse.tempo=30;
    Morse.Flash(1);
-   Morse.SendString("V1.0");
- 
+   Morse.SendString(VERSION);
+  } 
 }
 
 
 
 void loop() {
 
-
   smax=0;
   lpmax=0;
   hpmax=0;
-
-
 
   if (digitalRead(2)==LOW)
   {
@@ -100,21 +99,16 @@ void loop() {
   }
 
   average = (sigAlphaAGC*(float)smax) + ( (1.0-sigAlphaAGC)*averageLast );
-  //lpaverage = (baseAlphaAGC*(float)lpmax) + ( (1.0-baseAlphaAGC)*lpaverageLast );
-  //hpaverage = (trebAlphaAGC*(float)hpmax) + ( (1.0-trebAlphaAGC)*hpaverageLast );
   lpaverage = (sigAlphaAGC*(float)lpmax) + ( (1.0-sigAlphaAGC)*lpaverageLast );
   hpaverage = (sigAlphaAGC*(float)hpmax) + ( (1.0-sigAlphaAGC)*hpaverageLast );
-
 
   lplatch++;
   hplatch++;
   siglatch++;
-
   
   if (lplatch>=LPLATCHLENGTH) {lpTrig=false;}
   if (hplatch>=HPLATCHLENGTH) {hpTrig=false;} 
   if (siglatch>=SIGLATCHLENGTH) {sigTrig=false;}
-
   
   if(smax>average) 
   { 
