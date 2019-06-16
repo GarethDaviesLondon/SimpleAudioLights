@@ -1,12 +1,9 @@
-//#define DEBUGSAMPLE
-//#define DEBUGCONSTANTS
-//#define DEBUGSIGNALS
-//#define DEBUGSCALED
+#include "MorseSender.h"
 
 #define SAMPLES 128
-#define OUTPUTPIN 8
+#define OUTPUTPIN 10
 #define BASEPIN 11
-#define TREBPIN 10
+#define TREBPIN 8
 #define REVERSEPIN 9
 
 #define ALPHA 8 //This is the filter used in the Low Pass Filter
@@ -18,7 +15,9 @@
 #define TREBRATCHETGAP 20 //This is the peak detect reset, when it peaks it moves the average up towards the peak, from which it then decays...
 #define SIGLATCHLENGTH 1 //Once triggered this is the on dwell time
 #define HPLATCHLENGTH 2 //Once triggered this is the on dwell time
-#define LPLATCHLENGTH 5 //Once triggered this is the on dwell time
+#define LPLATCHLENGTH 10 //Once triggered this is the on dwell time
+
+MorseSender Morse(LED_BUILTIN);
 
   int smax=0;
   int lpmax=0;
@@ -28,8 +27,6 @@
   float lpfilter,hpfilter;
   float lpfilterLast,hpfilterLast;
   float alpha;
-  //float baseAlphaAGC;
-  //float trebAlphaAGC
   float sigAlphaAGC;
   float sampleF;
 
@@ -53,10 +50,14 @@ void setup() {
   pinMode(BASEPIN,OUTPUT);
   pinMode(TREBPIN,OUTPUT);
   pinMode(REVERSEPIN,OUTPUT);
+  pinMode(A1,INPUT);
+  pinMode(2,INPUT_PULLUP);
   alpha=1.0/ALPHA;
   sigAlphaAGC=1.0/SIGALPHAAGC;
-  //baseAlphaAGC=1.0/BASEALPHAAGC;
-  //trebAlphaAGC=1.0/TREBALPHAAGC;
+   Morse.tempo=30;
+   Morse.Flash(1);
+   Morse.SendString("V1.0");
+ 
 }
 
 
@@ -70,11 +71,21 @@ void loop() {
 
 
 
-  
-  for (int count=0;count<SAMPLES;count++)
+  if (digitalRead(2)==LOW)
   {
-    samples[count]=analogRead(A0);
-    if (samples[count]>smax) smax=samples[count];
+  for (int count=0;count<SAMPLES;count++)             //Without Anti-Alias Fitler
+    {
+      samples[count]=analogRead(A0);
+      if (samples[count]>smax) smax=samples[count];
+    }
+  }
+  else
+  {
+    for (int count=0;count<SAMPLES;count++) 
+    {
+      samples[count]=analogRead(A1);                  //With Aanalogue Anti-Alias Filter
+      if (samples[count]>smax) smax=samples[count];
+    }
   }
 
   lpfilterLast=samples[0];
