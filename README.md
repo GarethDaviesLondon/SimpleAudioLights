@@ -1,5 +1,8 @@
 # SimpleAudioLights
 This little circuit ran my digital lights at the BlueDot Festival 2019.
+See it working here: 
+https://twitter.com/0cit/status/1155867390607056896
+
 
 The sketch was uploaded to a lillipad Arduino which was connected to a MAX 9814 Audio AGC board
 This provided audio directly to Pin A0 and through an RC filter at about 2Khz to Pin A1
