@@ -12,7 +12,7 @@ This provided audio directly to Pin A0 and through an RC low-pass filter on the 
 Selection between which input to use was by a little switch that connected PIN D2 to ground.
 D2 is set to PULL_UP so that default is with Anti-Aliasing.
 
-There are 4 channels output on 
+There are 4 channels output on digital pins
 
 TREBPIN 8
 REVERSEPIN 9
@@ -26,9 +26,14 @@ The other pins show channels for BASE,MID & TREBLE ranges based on some simple D
 
 Have fun playing with these to change the response of the filters
 
+These are the low-pass filtering average calculations.
+
 define ALPHA 8 //This is the filter used in the Low Pass Filter
 
 define SIGALPHAAGC 64   //Used in the AGC Calculation
+
+
+There are two forms of AGC in the circuit, one on the analogue side from the MAXIM chip, the other is by moving the peak-detection trigger up. These gap figures help with that process.
 
 define SIGRATCHETGAP 10 //This is the peak detect reset, when it peaks it moves the average up towards the peak, from which it then decays...
 
@@ -36,8 +41,12 @@ define BASERATCHETGAP 10 //This is the peak detect reset, when it peaks it moves
 
 define TREBRATCHETGAP 20 //This is the peak detect reset, when it peaks it moves the average up towards the peak, from which it then decays...
 
+-The Latching effect removes high frequency flicker and makes it more positive.
+
 define SIGLATCHLENGTH 1 //Once triggered this is the on dwell time
+
 define HPLATCHLENGTH 2 //Once triggered this is the on dwell time
+
 define LPLATCHLENGTH 10 //Once triggered this is the on dwell time
 
 
